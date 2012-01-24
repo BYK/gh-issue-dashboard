@@ -13,13 +13,13 @@
 
   var _issueAggregator = function (issues) {
     var result = {count: issues.length, people: {}},
-        people = result.people;
+      people = result.people;
 
     people['[nobody]'] = 0;
     issues.each(function (issue) {
       var assignee = issue.get('assignee');
       assignee = assignee && assignee.login;
-      if (!assignee) people['[nobody]']  += 1;
+      if (!assignee) people['[nobody]'] += 1;
       else people[assignee] = (people[assignee] || 0) + 1;
     });
     drawIssueChart(result);
@@ -62,9 +62,10 @@
           {
             type: 'pie',
             name: 'People distribution',
-            data: _.chain(people).keys().map(function (k) {
-              return [k, people[k]]
-            }).value()
+            data: _.chain(people).keys().map(
+              function (k) {
+                return [k, people[k]]
+              }).value()
           }
         ]
       });
@@ -83,8 +84,8 @@
       // initialize your app
     } else if (hash[0] === '!') {
       var params = hash.substr(1).split('/'),
-          title = $('h1'),
-          titleTemplate = _.template(title.text())
+        title = $('h1'),
+        titleTemplate = _.template(title.text())
       title.text(titleTemplate({user: params[0], repo: params[1]}));
       loadIssues.apply($, params);
     }
