@@ -85,7 +85,11 @@
     if (hash == "") {
       // initialize your app
     } else if (hash[0] === '!') {
-      loadIssues.apply($, hash.substr(1).split('/'))
+      var params = hash.substr(1).split('/'),
+          title = $('h1'),
+          titleTemplate = _.template(title.text())
+      title.text(titleTemplate({user: params[0], repo: params[1]}));
+      loadIssues.apply($, params);
     }
   });
 })(this);
