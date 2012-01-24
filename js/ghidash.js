@@ -9,28 +9,28 @@
   }
 
   var $ = global.jQuery,
-    spinner = new Spinner();
+      spinner = new Spinner();
 
   var getScore = function(memo, char) {
     if (char === '\u2605') ++memo;
     return memo;
   };
-  var scoreCalculator = function(score, label) {
-    var res = _.reduce(label.name.split(''), getScore, score);
+  var scoreCalculator = function(label) {
+    var res = _.reduce(label.name.split(''), getScore, 0);
     return res;
   };
   var _issueAggregator = function (issues) {
     var result = {count: issues.length, people: {}},
       people = result.people;
 
-    people['[nobody]'] = 0; // consider using groupBy here
+    people['[nobody]'] = 0;
     issues.each(function (issue) {
       var labels = issue.get('labels'),
-          score = _.reduce(labels, scoreCalculator, 0),
+          score = labels.length ? _.max(_.map(labels, scoreCalculator)) : 0.5,
           assignee = issue.get('assignee');
       assignee = assignee && assignee.login;
 
-      if (!assignee) people['[nobody]'] += 1;
+      if (!assignee) people['[nobody]'] += score;
       else people[assignee] = (people[assignee] || 0) + score;
     });
     drawIssueChart(result);
@@ -51,7 +51,8 @@
         },
         tooltip: {
           formatter: function () {
-            return '<b>' + this.point.name + '</b>: ' + this.y;
+            return '<b>' + this.point.name + '</b>: ' +
+                   Math.round(this.percentage * 100) / 100 + ' %';
           }
         },
         plotOptions: {
@@ -63,8 +64,7 @@
               color: '#000000',
               connectorColor: '#000000',
               formatter: function () {
-                return '<b>' + this.point.name + '</b>: ' +
-                       Math.round(this.percentage * 100) / 100 + ' %';
+                return '<b>' + this.point.name + '</b>: ' + this.y;
               }
             }
           }
