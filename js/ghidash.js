@@ -11,16 +11,27 @@
   var $ = global.jQuery,
     spinner = new Spinner();
 
+  var getScore = function(memo, char) {
+    if (char === '\u2605') ++memo;
+    return memo;
+  };
+  var scoreCalculator = function(score, label) {
+    var res = _.reduce(label.name.split(''), getScore, score);
+    return res;
+  };
   var _issueAggregator = function (issues) {
     var result = {count: issues.length, people: {}},
       people = result.people;
 
-    people['[nobody]'] = 0;
+    people['[nobody]'] = 0; // consider using groupBy here
     issues.each(function (issue) {
-      var assignee = issue.get('assignee');
+      var labels = issue.get('labels'),
+          score = _.reduce(labels, scoreCalculator, 0),
+          assignee = issue.get('assignee');
       assignee = assignee && assignee.login;
+
       if (!assignee) people['[nobody]'] += 1;
-      else people[assignee] = (people[assignee] || 0) + 1;
+      else people[assignee] = (people[assignee] || 0) + score;
     });
     drawIssueChart(result);
   };
