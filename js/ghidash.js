@@ -19,7 +19,7 @@
     issues.each(function (issue) {
       var iLabels = issue.get('labels'),
           length = iLabels.length;
-      if (length) labels['[unlabeled]']  += 1;
+      if (!length) labels['[unlabeled]']  += 1;
       for (var i = iLabels.length - 1; i >= 0; i--) {
         var label = iLabels[i].name;
         labels[label] = (labels[label] || 0) + 1/length;
