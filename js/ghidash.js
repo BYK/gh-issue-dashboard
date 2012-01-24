@@ -12,25 +12,22 @@
     spinner = new Spinner();
 
   var _issueAggregator = function (issues) {
-    var result = {count: issues.length, labels: {}},
-        labels = result.labels;
+    var result = {count: issues.length, people: {}},
+        people = result.people;
 
-    labels['[unlabeled]'] = 0;
+    people['[nobody]'] = 0;
     issues.each(function (issue) {
-      var iLabels = issue.get('labels'),
-          length = iLabels.length;
-      if (!length) labels['[unlabeled]']  += 1;
-      for (var i = iLabels.length - 1; i >= 0; i--) {
-        var label = iLabels[i].name;
-        labels[label] = (labels[label] || 0) + 1/length;
-      }
+      var assignee = issue.get('assignee');
+      assignee = assignee && assignee.login;
+      if (!assignee) people['[nobody]']  += 1;
+      else people[assignee] = (people[assignee] || 0) + 1;
     });
     drawIssueChart(result);
   };
 
   function drawIssueChart(data) {
     spinner.stop();
-    var labels = data.labels,
+    var people = data.people,
       chart = new Highcharts.Chart({
         chart: {
           renderTo: 'container',
@@ -64,10 +61,10 @@
         series: [
           {
             type: 'pie',
-            name: 'Label share',
-            data: Object.keys(labels).map(function (k) {
-              return [k, labels[k]]
-            })
+            name: 'People distribution',
+            data: _.chain(people).keys().map(function (k) {
+              return [k, people[k]]
+            }).value()
           }
         ]
       });
